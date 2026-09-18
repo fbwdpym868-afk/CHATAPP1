@@ -68,7 +68,3 @@ Enter your password: Ch&&sec@ke99!
 Welcome John, Doe it is great to see you again.
 ```
 
-## Author
-
-ChatApp Java Project
-
