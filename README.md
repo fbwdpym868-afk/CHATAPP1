@@ -51,3 +51,24 @@ Example: `+27838968976`
 
 ## Testing
 
+JUnit tests are included to check both valid and invalid information, including usernames, passwords, cellphone numbers and login details.
+
+## Running the Program
+
+Open the project in a Java IDE and run `ChatApp.java`.
+
+To test the program, run `ChatAppTest.java` using JUnit.
+
+## Example Login
+
+```text
+Enter your username: kyl_1
+Enter your password: Ch&&sec@ke99!
+
+Welcome John, Doe it is great to see you again.
+```
+
+## Author
+
+ChatApp Java Project
+
