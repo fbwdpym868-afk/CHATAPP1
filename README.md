@@ -22,3 +22,32 @@ The program checks the user's username, password and cellphone number before all
 Example: `kyl_1`
 
 
+### Password
+
+The password must have:
+
+* At least 8 characters
+* A capital letter
+* A number
+* A special character
+
+Example: `Ch&&sec@ke99!`
+
+### Cellphone Number
+
+The number must start with `+27` and contain 9 digits after it.
+
+Example: `+27838968976`
+
+## How It Works
+
+1. Enter your first and last name.
+2. Create a valid username.
+3. Create a valid password.
+4. Enter your cellphone number.
+5. The details are stored.
+6. Log in using your username and password.
+7. The program shows whether the login was successful.
+
+## Testing
+
