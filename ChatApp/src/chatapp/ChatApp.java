@@ -1,87 +1,167 @@
 package chatapp;
 
 import java.util.Scanner;
-     
 
 public class ChatApp {
 
+    private static final Scanner read = new Scanner(System.in);
+    private static final Login login = new Login();
+    private static final MessageStorage storage = new MessageStorage();
+    private static int totalMessagesSent = 0;
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Login login = new Login();
+        System.out.println("==================================");
+        System.out.println("           REGISTRATION           ");
+        System.out.println("==================================");
 
-        System.out.println("========== ChatApp ==========");
-        System.out.println("========== Registration ==========");
+        String firstName = ask("Enter your first name: ");
+        String lastName  = ask("Enter your last name: ");
+        String username  = askUsername();
+        String password  = askPassword();
+        String cellPhone = askCellPhone();
 
-        // Get first name
-        System.out.print("Enter your first name: ");
-        String firstName = scanner.nextLine().trim();
+        login.saveUser(firstName, lastName, username, password, cellPhone);
+        System.out.println(login.registerUser(username, password));
 
-        // Get last name
-        System.out.print("Enter your last name: ");
-        String lastName = scanner.nextLine().trim();
+        // Only proceed to Part 2 if login is successful
+        if (startLogin()) {
+            runMenu();
+        }
+        read.close();
+    }
 
-        // Get username and check it
-        String username;
+    private static String ask(String message) {
+        System.out.print(message);
+        return read.nextLine().trim();
+    }
+
+    private static String askUsername() {
         while (true) {
-            System.out.print("Enter username (must contain '_' and be 5 characters or fewer, e.g. kyl_1): ");
-            username = scanner.nextLine().trim();
+            String username = ask("Enter your username: ");
             if (login.checkUserName(username)) {
                 System.out.println("Username successfully captured.");
-                break;
-            } else {
-                System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.");
+                return username;
             }
+            System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.");
         }
+    }
 
-        // Get password and check it
-        String password;
+    private static String askPassword() {
         while (true) {
-            System.out.print("Enter password (min 8 chars, 1 capital, 1 number, 1 special, e.g. Ch&&sec@ke99!): ");
-            password = scanner.nextLine();
+            System.out.print("Enter your password: ");
+            String password = read.nextLine();
             if (login.checkPasswordComplexity(password)) {
                 System.out.println("Password successfully captured.");
-                break;
-            } else {
-                System.out.println("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.");
+                return password;
             }
+            System.out.println("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.");
         }
+    }
 
-        // Get cell phone number and check it
-        String cellPhone;
+    private static String askCellPhone() {
         while (true) {
-            System.out.print("Enter SA cell phone number (must start with +27, e.g. +27838968976): ");
-            cellPhone = scanner.nextLine().trim();
+            String cellPhone = ask("Enter your cell phone number: ");
             if (login.checkCellPhoneNumber(cellPhone)) {
-                System.out.println("Cell phone number successfully added.");
-                break;
-            } else {
-                System.out.println("Cell phone number incorrectly formatted or does not contain international code.");
+                System.out.println("Cell number successfully captured.");
+                return cellPhone;
             }
+            System.out.println("Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.");
         }
+    }
 
-        // Store the user details
-        login.setStoredDetails(firstName, lastName, username, password, cellPhone);
-        System.out.println(login.registerUser(username, password));
-        System.out.println("You can now log in with your username and password.");
-
-        // Login section - allow retries until successful
-        System.out.println();
-        System.out.println("========== Login ==========");
-        boolean loginSuccess = false;
-        while (!loginSuccess) {
-            System.out.print("Enter your username: ");
-            String loginUsername = scanner.nextLine().trim();
+    private static boolean startLogin() {
+        boolean loggedIn = false;
+        while (!loggedIn) {
+            System.out.println("\n===========================");
+            System.out.println("           LOGIN           ");
+            System.out.println("===========================");
+            String username = ask("Enter your username: ");
             System.out.print("Enter your password: ");
-            String loginPassword = scanner.nextLine();
+            String password = read.nextLine();
 
-            loginSuccess = login.loginUser(loginUsername, loginPassword);
-            System.out.println(login.returnLoginStatus(loginSuccess, login.getStoredFirstName(), login.getStoredLastName()));
+            loggedIn = login.loginUser(username, password);
+            System.out.println(login.returnLoginStatus(loggedIn));
+        }
+        return loggedIn;
+    }
 
-            if (!loginSuccess) {
-                System.out.println("Please try again.\n");
+    // ==========================================
+    // PART 2: MESSAGING MENU
+    // ==========================================
+
+    private static void runMenu() {
+        boolean running = true;
+        while (running) {
+            System.out.println("\nWelcome to QuickChat.");
+            System.out.println("1) Send Messages");
+            System.out.println("2) Show recently sent messages");
+            System.out.println("3) Quit");
+            String choice = ask("Choose an option: ");
+
+            if (choice.equals("1")) {
+                sendMessages();
+            } else if (choice.equals("2")) {
+                System.out.println("Coming Soon.");
+            } else if (choice.equals("3")) {
+                running = false;
+                System.out.println("Goodbye!");
+            } else {
+                System.out.println("Invalid option. Please enter 1, 2, or 3.");
+            }
+        }
+    }
+
+    private static void sendMessages() {
+        int count = 0;
+        while (true) {
+            try {
+                count = Integer.parseInt(ask("How many messages do you wish to enter? "));
+                if (count > 0) break;
+                System.out.println("Please enter a number greater than zero.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number.");
             }
         }
 
-        scanner.close();
+        for (int i = 0; i < count; i++) {
+            System.out.println("\n--- Message " + (i + 1) + " of " + count + " ---");
+            
+            String recipient = "";
+            while (true) {
+                recipient = ask("Recipient cell number (e.g. +27718693002): ");
+                Message temp = new Message(i, recipient, "test");
+                if (temp.checkRecipientCell()) break;
+                System.out.println("Cell phone number incorrectly formatted or does not contain an international code.");
+            }
+
+            String text = "";
+            while (true) {
+                text = ask("Message text: ");
+                Message temp = new Message(i, recipient, text);
+                if (temp.checkMessageLength()) break;
+                System.out.println("Message exceeds 250 characters or is empty.");
+            }
+
+            Message msg = new Message(i, recipient, text);
+            System.out.println("\n" + msg.printMessage());
+
+            System.out.println("\n1) Send Message\n2) Store Message\n3) Disregard Message");
+            String action = ask("Choose: ");
+
+            if (action.equals("1")) {
+                msg.setFlag("Sent");
+                totalMessagesSent++;
+                System.out.println("Message sent.");
+            } else if (action.equals("2")) {
+                msg.setFlag("Stored");
+                storage.saveMessage(msg);
+                totalMessagesSent++;
+                System.out.println("Message stored.");
+            } else {
+                msg.setFlag("Disregard");
+                System.out.println("Message disregarded.");
+            }
+        }
+        System.out.println("\nTotal messages processed: " + totalMessagesSent);
     }
 }

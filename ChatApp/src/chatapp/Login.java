@@ -1,16 +1,21 @@
 package chatapp;
 
-
-
 import java.util.regex.Pattern;
 
 public class Login {
 
-    private String storedFirstName;
-    private String storedLastName;
-    private String storedUsername;
-    private String storedPassword;
-    private String storedCellPhone;
+    // Positions in the saved user array
+    private static final int FIRST_NAME = 0;
+    private static final int LAST_NAME  = 1;
+    private static final int USERNAME   = 2;
+    private static final int PASSWORD   = 3;
+    private static final int CELL       = 4;
+
+    // South African mobile number pattern: +27 followed by 9 digits.
+    // Source: https://en.wikipedia.org/wiki/Telephone_numbers_in_South_Africa
+    private static final Pattern SA_MOBILE = Pattern.compile("^\\+27[0-9]{9}$");
+
+    private final String[] savedUser = new String[5];
 
     // Check the username
     public boolean checkUserName(String username) {
@@ -23,28 +28,29 @@ public class Login {
             return false;
         }
         boolean hasCapital = false;
-        boolean hasNumber = false;
-        boolean hasSpecial = false;
-        for (char c : password.toCharArray()) {
+        boolean hasDigit = false;
+        boolean hasSymbol = false;
+        int i = 0;
+        while (i < password.length()) {
+            char c = password.charAt(i);
             if (Character.isUpperCase(c)) {
                 hasCapital = true;
             } else if (Character.isDigit(c)) {
-                hasNumber = true;
+                hasDigit = true;
             } else if (!Character.isLetterOrDigit(c)) {
-                hasSpecial = true;
+                hasSymbol = true;
             }
+            i++;
         }
-        return hasCapital && hasNumber && hasSpecial;
+        return hasCapital && hasDigit && hasSymbol;
     }
 
-    // Check the phone number
-    // Regular expression adapted from the ITU-T E.164 international
-    // phone number standard (https://www.itu.int/rec/T-REC-E.164).
+    // Check the cell phone number
     public boolean checkCellPhoneNumber(String cellPhone) {
-        return Pattern.matches("^\\+27[0-9]{9}$", cellPhone);
+        return SA_MOBILE.matcher(cellPhone).matches();
     }
 
-    // Returns the registration message
+    // Register the user and return the correct message
     public String registerUser(String username, String password) {
         if (!checkUserName(username)) {
             return "Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.";
@@ -52,59 +58,34 @@ public class Login {
         if (!checkPasswordComplexity(password)) {
             return "Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.";
         }
-        return "User registered successfully.";
+        return "Username successfully captured.\nPassword successfully captured.";
     }
 
-    // Returns the cell phone check message used by the tests
-    public String getCellPhoneMessage(String cellPhone) {
-        if (checkCellPhoneNumber(cellPhone)) {
-            return "Cell number successfully captured.";
-        } else {
-            return "Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.";
-        }
+    // Save the user details
+    public void saveUser(String firstName, String lastName, String username,
+                         String password, String cellPhone) {
+        savedUser[FIRST_NAME] = firstName;
+        savedUser[LAST_NAME]  = lastName;
+        savedUser[USERNAME]   = username;
+        savedUser[PASSWORD]   = password;
+        savedUser[CELL]       = cellPhone;
     }
 
     // Check the login details
     public boolean loginUser(String username, String password) {
-        return username.equals(storedUsername) && password.equals(storedPassword);
-    }
-
-    // Returns the login status message
-    public String returnLoginStatus(boolean loginSuccess, String firstName, String lastName) {
-        if (loginSuccess) {
-            return "Welcome " + firstName + ", " + lastName + " it is great to see you again.";
-        } else {
-            return "Username or password incorrect, please try again.";
+        if (savedUser[USERNAME] == null) {
+            return false;
         }
+        return savedUser[USERNAME].equals(username)
+                && savedUser[PASSWORD].equals(password);
     }
 
-    // Store the user details
-    public void setStoredDetails(String firstName, String lastName, String username,
-                                 String password, String cellPhone) {
-        this.storedFirstName = firstName;
-        this.storedLastName = lastName;
-        this.storedUsername = username;
-        this.storedPassword = password;
-        this.storedCellPhone = cellPhone;
-    }
-
-    public String getStoredFirstName() {
-        return storedFirstName;
-    }
-
-    public String getStoredLastName() {
-        return storedLastName;
-    }
-
-    public String getStoredUsername() {
-        return storedUsername;
-    }
-
-    public String getStoredPassword() {
-        return storedPassword;
-    }
-
-    public String getStoredCellPhone() {
-        return storedCellPhone;
+    // Return the correct login message
+    public String returnLoginStatus(boolean loggedIn) {
+        if (loggedIn) {
+            return "Welcome " + savedUser[FIRST_NAME] + ", " + savedUser[LAST_NAME]
+                    + " it is great to see you again.";
+        }
+        return "Username or password incorrect, please try again.";
     }
 }
