@@ -186,9 +186,9 @@ The project includes a sample `messages.json` showing two stored messages. Both 
 ```json
 [
   {
-    "messageID": "2900723710",
+    "messageID": "2700723710",
     "messageNumber": 0,
-    "recipient": "+29693518072",
+    "recipient": "+27693518072",
     "messageText": "Hi I was wondering if you are still available today?",
     "messageHash": "29:0:HITODAY",
     "flag": "Stored"
