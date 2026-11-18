@@ -1,10 +1,18 @@
 [
   {
-    "messageID": "4211502411",
+    "messageID": "2900723710",
     "messageNumber": 0,
+    "recipient": "+29693518072",
+    "messageText": "Hi I was wondering if you are still available today?",
+    "messageHash": "29:0:HITODAY",
+    "flag": "Stored"
+  },
+  {
+    "messageID": "9641663819",
+    "messageNumber": 1,
     "recipient": "+27718693002",
-    "messageText": "hih",
-    "messageHash": "42:0:HIHHIH",
+    "messageText": "Ocean",
+    "messageHash": "96:1:OCEANOCEAN",
     "flag": "Stored"
   }
 ]

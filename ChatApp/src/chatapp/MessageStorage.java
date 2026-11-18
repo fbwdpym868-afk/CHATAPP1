@@ -19,28 +19,53 @@ import java.util.List;
  *   https://github.com/google/gson/blob/main/UserGuide.md
  */
 public class MessageStorage {
-    
     private final String filePath = "messages.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    // grab the old list, add the new message, save it all back
     public void saveMessage(Message message) {
-        List<Message> existing = loadMessages();
+        List<Message> existing = loadMessagesList();
         existing.add(message);
-        
-        try (Writer writer = new FileWriter(filePath)) {
-            gson.toJson(existing, writer);
-        } catch (IOException e) {
-            System.out.println("Error saving to JSON: " + e.getMessage());
-        }
+        writeMessages(existing);
     }
 
-    public List<Message> loadMessages() {
+    // read the file and give me the list
+    private List<Message> loadMessagesList() {
         try (Reader reader = new FileReader(filePath)) {
             Type listType = new TypeToken<List<Message>>() {}.getType();
             List<Message> messages = gson.fromJson(reader, listType);
             return messages != null ? messages : new ArrayList<>();
         } catch (IOException e) {
-            return new ArrayList<>(); // Return empty if file doesn't exist yet
+            return new ArrayList<>();
         }
+    }
+
+    // part 3 rubric wants arrays so just convert the list
+    public Message[] loadMessages() {
+        List<Message> list = loadMessagesList();
+        return list.toArray(new Message[0]);
+    }
+
+    // overwrite the file with the new list
+    private void writeMessages(List<Message> messages) {
+        try (Writer writer = new FileWriter(filePath)) {
+            gson.toJson(messages, writer);
+        } catch (IOException e) {
+            System.out.println("Error saving to JSON: " + e.getMessage());
+        }
+    }
+
+    // find the hash, remove it, save again, return the text so I can print it
+    public String deleteByHash(String hash) {
+        List<Message> messages = loadMessagesList();
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).getMessageHash().equals(hash)) {
+                String deletedText = messages.get(i).getMessageText();
+                messages.remove(i);
+                writeMessages(messages);
+                return deletedText;
+            }
+        }
+        return null;
     }
 }
